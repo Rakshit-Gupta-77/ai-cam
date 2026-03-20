@@ -178,10 +178,13 @@ def _render_live_camera(processor: SurveillanceProcessor) -> None:
     triggers = st.sidebar.container()
     with triggers:
         st.markdown("### Alert Triggers")
-        weapon_trigger = st.checkbox("Weapon detected", value=True)
-        emotion_trigger = st.checkbox("Angry emotion", value=True)
-        unknown_person_trigger = st.checkbox("Unknown person", value=True)
-        too_many_persons_trigger = st.checkbox("More than 2 persons", value=True)
+        st.caption("Only weapon detection triggers database/email alerts")
+        weapon_trigger = st.checkbox("Weapon detected (SAVES ALERT)", value=True)
+        st.divider()
+        st.caption("Display-only triggers (visual indicators)")
+        emotion_trigger = st.checkbox("Show angry emotion", value=True)
+        unknown_person_trigger = st.checkbox("Show unknown person", value=True)
+        too_many_persons_trigger = st.checkbox("Show too many persons", value=True)
 
         too_many_persons_threshold = st.slider("Persons threshold", min_value=2, max_value=10, value=2)
 
@@ -206,25 +209,29 @@ def _render_live_camera(processor: SurveillanceProcessor) -> None:
                 time.sleep(0.2)
                 continue
 
-            annotated, triggered_types = processor.process_frame(
-                frame,
-                unknown_person_trigger=unknown_person_trigger,
-                emotion_trigger=emotion_trigger,
-                weapon_trigger=weapon_trigger,
-                too_many_persons_trigger=too_many_persons_trigger,
-                too_many_persons_threshold=int(too_many_persons_threshold),
-            )
+            try:
+                annotated, triggered_types = processor.process_frame(
+                    frame,
+                    unknown_person_trigger=unknown_person_trigger,
+                    emotion_trigger=emotion_trigger,
+                    weapon_trigger=weapon_trigger,
+                    too_many_persons_trigger=too_many_persons_trigger,
+                    too_many_persons_threshold=int(too_many_persons_threshold),
+                )
 
-            frame_slot.image(cv2.cvtColor(annotated, cv2.COLOR_BGR2RGB), channels="RGB", use_container_width=True)
+                frame_slot.image(cv2.cvtColor(annotated, cv2.COLOR_BGR2RGB), channels="RGB", use_container_width=True)
 
-            if triggered_types:
-                # Show only the last event type to reduce UI spam.
-                st.session_state.last_triggered = triggered_types[-1]
-                status.error(f"Alert triggered: {', '.join(triggered_types)}")
-            else:
-                status.info("No alert in this frame.")
+                if triggered_types:
+                    st.session_state.last_triggered = triggered_types[-1]
+                    status.error(f"WEAPON ALERT: {', '.join(triggered_types)}")
+                else:
+                    status.success("Monitoring active")
 
-            # Small sleep to avoid maxing CPU.
+            except Exception as e:
+                status.error(f"Processing error: {str(e)[:100]}")
+                time.sleep(0.5)
+                continue
+
             time.sleep(0.03)
     finally:
         cap.release()
@@ -272,11 +279,14 @@ def _render_face_manager(faces_version: int) -> int:
 
         st.success(f"Saved: {out_path.name}")
 
-        # Reload encodings immediately so recognition can find the new face.
-        face_module = get_face_module(faces_version)
-        face_module.load_faces()
+        new_version = faces_version + 1
 
-        return faces_version
+        get_face_module.clear()
+        get_processor.clear()
+
+        st.info("Face encodings reloaded. New face will be recognized in the next camera session.")
+
+        return new_version
 
     return faces_version
 
@@ -365,7 +375,8 @@ def main() -> None:
 
     # Global detection settings
     st.sidebar.markdown("### Detection Settings")
-    yolo_conf = st.sidebar.slider("YOLO confidence", min_value=0.1, max_value=0.9, value=0.35, step=0.05)
+    st.sidebar.caption("Weapon detection uses 0.6+ confidence threshold")
+    yolo_conf = st.sidebar.slider("YOLO base confidence", min_value=0.1, max_value=0.9, value=0.35, step=0.05)
     angry_threshold = st.sidebar.slider("Angry threshold", min_value=0.05, max_value=1.0, value=0.5, step=0.05)
     emotion_every_n_frames = st.sidebar.slider("Emotion every N frames", min_value=1, max_value=10, value=3, step=1)
 

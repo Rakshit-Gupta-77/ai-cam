@@ -45,11 +45,14 @@ class FaceRecognitionModule:
         self.known_encodings: list[np.ndarray] = []
         self.load_faces()
 
-    def load_faces(self) -> None:
+    def load_faces(self) -> int:
         """
         Reload known faces from `faces/` folder into in-memory encodings.
 
         Filename stem becomes the `person name`.
+
+        Returns:
+            Number of faces loaded successfully.
         """
         import face_recognition
 
@@ -57,16 +60,23 @@ class FaceRecognitionModule:
         self.known_encodings.clear()
 
         supported_exts = {".jpg", ".jpeg", ".png", ".webp", ".bmp"}
-        images = [p for p in self.faces_dir.iterdir() if p.suffix.lower() in supported_exts and p.is_file()]
+        images = [p for p in self.faces_dir.iterdir() if p.suffix.lower() in supported_exts and p.is_file() and p.name != ".gitkeep"]
         images.sort(key=lambda p: p.name.lower())
 
+        loaded_count = 0
         for img_path in images:
-            img = face_recognition.load_image_file(str(img_path))
-            encodings = face_recognition.face_encodings(img)
-            if not encodings:
+            try:
+                img = face_recognition.load_image_file(str(img_path))
+                encodings = face_recognition.face_encodings(img, model="large")
+                if not encodings:
+                    continue
+                self.known_names.append(img_path.stem)
+                self.known_encodings.append(np.asarray(encodings[0], dtype=np.float32))
+                loaded_count += 1
+            except Exception:
                 continue
-            self.known_names.append(img_path.stem)
-            self.known_encodings.append(np.asarray(encodings[0], dtype=np.float32))
+
+        return loaded_count
 
     def recognize(self, frame_bgr: np.ndarray) -> list[FaceMatch]:
         """
@@ -78,42 +88,42 @@ class FaceRecognitionModule:
 
         import face_recognition
 
-        rgb = cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2RGB)
-        # Required by prompt: use face_recognition.face_encodings and compare_faces with tolerance=0.5
-        locations = face_recognition.face_locations(rgb, model="hog")
-        if not locations:
-            return []
+        try:
+            rgb = cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2RGB)
+            locations = face_recognition.face_locations(rgb, model="hog")
+            if not locations:
+                return []
 
-        encodings = face_recognition.face_encodings(rgb, known_face_locations=locations)
+            encodings = face_recognition.face_encodings(rgb, known_face_locations=locations, model="large")
 
-        results: list[FaceMatch] = []
-        tolerance = float(self.face_match_threshold)  # requirement: 0.5
+            results: list[FaceMatch] = []
+            tolerance = float(self.face_match_threshold)
 
-        for loc, encoding in zip(locations, encodings):
-            if not self.known_encodings:
-                results.append(FaceMatch(name="Unknown", box=loc, confidence=0.0))
-                continue
+            for loc, encoding in zip(locations, encodings):
+                if not self.known_encodings:
+                    results.append(FaceMatch(name="Unknown", box=loc, confidence=0.0))
+                    continue
 
-            matches = face_recognition.compare_faces(
-                self.known_encodings,
-                encoding,
-                tolerance=tolerance,
-            )
+                matches = face_recognition.compare_faces(
+                    self.known_encodings,
+                    encoding,
+                    tolerance=tolerance,
+                )
 
-            if any(matches):
-                distances = face_recognition.face_distance(self.known_encodings, encoding)
-                # Pick best match among all faces.
-                best_idx = int(np.argmin(distances))
-                if matches[best_idx]:
-                    name = self.known_names[best_idx]
+                if any(matches):
+                    distances = face_recognition.face_distance(self.known_encodings, encoding)
+                    best_idx = int(np.argmin(distances))
+                    if matches[best_idx]:
+                        name = self.known_names[best_idx]
+                        dist = float(distances[best_idx])
+                        confidence = float(max(0.0, min(1.0, 1.0 / (1.0 + dist))))
+                        results.append(FaceMatch(name=name, box=loc, confidence=confidence))
+                    else:
+                        results.append(FaceMatch(name="Unknown", box=loc, confidence=0.0))
                 else:
-                    # Fallback: first True.
-                    name = self.known_names[int(np.where(matches)[0][0])]
-                dist = float(distances[best_idx])
-                confidence = float(max(0.0, min(1.0, 1.0 / (1.0 + dist))))
-                results.append(FaceMatch(name=name, box=loc, confidence=confidence))
-            else:
-                results.append(FaceMatch(name="Unknown", box=loc, confidence=0.0))
+                    results.append(FaceMatch(name="Unknown", box=loc, confidence=0.0))
 
-        return results
+            return results
+        except Exception:
+            return []
 

@@ -54,6 +54,8 @@ class EmotionDetector:
         except Exception:
             self._deepface_ok = False
 
+        self._min_face_size = 48
+
     def is_angry(self, emotion_scores: dict[str, float]) -> tuple[bool, float]:
         angry_score = float(emotion_scores.get("angry", 0.0))
         is_angry = angry_score >= self.angry_threshold
@@ -71,8 +73,11 @@ class EmotionDetector:
                 outputs.append((False, 0.0))
                 continue
 
+            if crop.shape[0] < self._min_face_size or crop.shape[1] < self._min_face_size:
+                outputs.append((False, 0.0))
+                continue
+
             try:
-                # DeepFace can accept ndarray inputs.
                 result = DeepFace.analyze(
                     crop,
                     actions=["emotion"],
@@ -80,7 +85,6 @@ class EmotionDetector:
                     detector_backend="opencv",
                     silent=True,
                 )
-                # DeepFace may return dict or list[dict]
                 if isinstance(result, list) and result:
                     result = result[0]
 
@@ -176,6 +180,7 @@ class AlertManager:
 
 class SurveillanceProcessor:
     WEAPONS = {"scissors", "knife", "bottle", "baseball bat"}
+    WEAPON_CONFIDENCE_THRESHOLD = 0.6  # Higher threshold for weapons to reduce false positives
 
     def __init__(
         self,
@@ -236,7 +241,7 @@ class SurveillanceProcessor:
             x1i, y1i, x2i, y2i = int(x1), int(y1), int(x2), int(y2)
             if label == "person":
                 person_boxes.append((x1i, y1i, x2i, y2i))
-            if label in self.WEAPONS:
+            if label in self.WEAPONS and float(conf) >= self.WEAPON_CONFIDENCE_THRESHOLD:
                 weapon_dets.append(
                     WeaponDetection(
                         label=str(label),
