@@ -1,0 +1,21 @@
+venv/
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.idea/
+.vscode/
+*.log
+!logs/log.txt
+*.tmp
+
+# Streamlit
+.streamlit/
+
+# Local model cache (YOLO/DeepFace may download models)
+runs/
+model_cache/

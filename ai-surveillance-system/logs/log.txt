@@ -1,0 +1,33 @@
+
+[2026-03-20T12:19:38+05:30] type=unknown_person name=Unknown image=unknown_person_20260320_121938_677.jpg
+[2026-03-20T12:19:41+05:30] type=angry_emotion name=angry (83.67) image=angry_emotion_20260320_121941_646.jpg
+[2026-03-20T12:19:58+05:30] type=unknown_person name=Unknown image=unknown_person_20260320_121958_843.jpg
+[2026-03-20T12:20:19+05:30] type=unknown_person name=Unknown image=unknown_person_20260320_122019_228.jpg
+[2026-03-20T12:20:24+05:30] type=angry_emotion name=angry (1.26) image=angry_emotion_20260320_122023_989.jpg
+[2026-03-20T12:20:39+05:30] type=unknown_person name=Unknown image=unknown_person_20260320_122039_594.jpg
+[2026-03-20T12:20:52+05:30] type=angry_emotion name=angry (11.57) image=angry_emotion_20260320_122052_532.jpg
+[2026-03-20T12:20:58+05:30] type=unknown_person name=Unknown image=unknown_person_20260320_122058_620.jpg
+[2026-03-20T12:21:03+05:30] type=angry_emotion name=angry (98.65) image=angry_emotion_20260320_122103_217.jpg
+[2026-03-20T12:21:19+05:30] type=unknown_person name=Unknown image=unknown_person_20260320_122118_988.jpg
+[2026-03-20T12:21:39+05:30] type=unknown_person name=Unknown image=unknown_person_20260320_122139_616.jpg
+[2026-03-20T12:21:46+05:30] type=angry_emotion name=angry (2.28) image=angry_emotion_20260320_122145_992.jpg
+[2026-03-20T12:21:59+05:30] type=unknown_person name=Unknown image=unknown_person_20260320_122159_859.jpg
+[2026-03-20T12:22:06+05:30] type=angry_emotion name=angry (0.57) image=angry_emotion_20260320_122206_460.jpg
+[2026-03-20T12:22:08+05:30] type=too_many_persons name=3 persons image=too_many_persons_20260320_122208_067.jpg
+[2026-03-20T12:22:20+05:30] type=unknown_person name=Unknown image=unknown_person_20260320_122220_311.jpg
+[2026-03-20T12:22:41+05:30] type=angry_emotion name=angry (0.94) image=angry_emotion_20260320_122241_024.jpg
+[2026-03-20T12:22:41+05:30] type=unknown_person name=Unknown image=unknown_person_20260320_122241_041.jpg
+[2026-03-20T12:28:57+05:30] type=unknown_person name=Unknown image=unknown_person_20260320_122857_617.jpg
+[2026-03-20T12:28:58+05:30] type=angry_emotion name=angry (0.78) image=angry_emotion_20260320_122858_621.jpg
+[2026-03-20T12:29:07+05:30] type=too_many_persons name=3 persons image=too_many_persons_20260320_122907_909.jpg
+[2026-03-20T12:29:18+05:30] type=unknown_person name=Unknown image=unknown_person_20260320_122918_223.jpg
+[2026-03-20T12:29:22+05:30] type=angry_emotion name=angry (2.21) image=angry_emotion_20260320_122922_635.jpg
+[2026-03-20T12:29:38+05:30] type=unknown_person name=Unknown image=unknown_person_20260320_122938_504.jpg
+[2026-03-20T12:29:39+05:30] type=too_many_persons name=4 persons image=too_many_persons_20260320_122939_555.jpg
+[2026-03-20T12:29:57+05:30] type=angry_emotion name=angry (10.74) image=angry_emotion_20260320_122957_077.jpg
+[2026-03-20T12:29:58+05:30] type=unknown_person name=Unknown image=unknown_person_20260320_122958_579.jpg
+[2026-03-20T12:30:19+05:30] type=angry_emotion name=angry (2.37) image=angry_emotion_20260320_123019_118.jpg
+[2026-03-20T12:30:19+05:30] type=unknown_person name=Unknown image=unknown_person_20260320_123019_134.jpg
+[2026-03-20T12:30:40+05:30] type=unknown_person name=Unknown image=unknown_person_20260320_123040_100.jpg
+[2026-03-20T12:31:00+05:30] type=unknown_person name=Unknown image=unknown_person_20260320_123100_376.jpg
+[2026-03-20T12:31:01+05:30] type=angry_emotion name=angry (0.53) image=angry_emotion_20260320_123101_425.jpg
